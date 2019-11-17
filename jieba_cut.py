@@ -14,8 +14,10 @@ def jieba_cut(filename, cut_filename):
         mycontent = f.read()
 
         jieba_content = jieba.cut(mycontent, cut_all=False)
+        print('is cuting111')
 
         final_file = ' '.join(jieba_content)
+        print('is cuting222')
 
         final_file = final_file.encode('utf-8')
 
