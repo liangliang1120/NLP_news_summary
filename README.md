@@ -2,15 +2,21 @@
 news summary; gensimi;  word2vec;  wiki中文语料
 
 py文件说明：
+    
     gensim_get_cor.py用于获取wiki语料,用了24小时多，不知道是不是我的方法有问题；
+    
     jieba_cut.py分词；
+    
     jieba_cut_1.py文件拆开后用于分词；
+    
     merge_cut_corpus.py合并分词结果；
+    
     word2vec.py是词向量训练和部分预料的训练结果；
+    
     tsne_word.py用于词向量可视化。
 
 
-
+#
 
 数据说明：
     wiki文件夹是原始语料分成的100个文件；
