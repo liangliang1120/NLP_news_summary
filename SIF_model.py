@@ -6,10 +6,35 @@ Created on Sun Nov 24 18:54:19 2019
 """
 import numpy as np
 from sklearn.decomposition import PCA
+import os
 
+class Word:
+    def __init__(self, text, vector):
+        self.text = text
+        self.vector = vector
+
+
+class Sentence:
+    def __init__(self, word_list):
+        self.word_list = word_list
+
+    def len(self) -> int:
+        return len(self.word_list)
+
+
+def get_word_frequency(word_text, file_path):
+    # 统计词频
+    f= open(file_path,'r',encoding="utf-8")
+    word_all = f.read().split()
+    if word_text in model_v:
+        freq = word_all.count(word_text) 
+        f.close()  
+        print(freq)
+    else:
+        return 1.0
 
 # sentence_to_vec方法就是将句子转换成对应向量的核心方法
-def sentence_to_vec(word2v, sentence_list, embedding_size: int, a: float=1e-3):
+def sentence_to_vec(model_v, sentence_list, embedding_size: int, a: float=1e-3):
     sentence_set = []
     for sentence in sentence_list:
         vs = np.zeros(embedding_size)  
@@ -18,7 +43,7 @@ def sentence_to_vec(word2v, sentence_list, embedding_size: int, a: float=1e-3):
         # 这个就是初步的句子向量的计算方法
 #################################################
         for word in sentence.word_list:
-            a_value = a / (a + get_word_frequency(word.text))  
+            a_value = a / (a + get_word_frequency(word.text, 'wiki_cut/wiki_001.txt'))  
             # smooth inverse frequency, SIF
             vs = np.add(vs, np.multiply(a_value, word.vector))  
             # vs += sif * word_vector
@@ -67,10 +92,11 @@ model = my_word2vec('wiki_001.txt')
 model_v = {}
 for word1 in model.wv.index2word:
     model_v[word1] = model[word1]
-    
-sentence = '可爱的我喜欢学习新的事物'
 
-sentence_to_vec(model_v, sentence, 100, 1e-3)
+
+sentence = '可爱的我喜欢学习新的事物'
+sentence_list = list(jieba.cut(sentence, cut_all=False))
+sentence_to_vec(model_v, sentence_list, 100, 1e-3)
 
 sentence_list = model_v
 embedding_size = 100
