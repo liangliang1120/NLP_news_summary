@@ -87,7 +87,7 @@ def my_word2vec(cut_filename):
     model.save('./model/zh_wiki_global.model')
     return model
 
-model = my_word2vec('wiki_001.txt')
+model = my_word2vec('wiki_cut.txt')
 model_v = {}
 for word1 in model.wv.index2word:
     model_v[word1] = model[word1]
@@ -102,41 +102,26 @@ train = ['世界首批智能机器警犬惊现美国马萨诸塞州街头执勤�
     ,'据悉，“斑点”装备了一只机械臂和一个弱光环境摄像头，可以自动行走，也可以遥控操作。'
     ,'这款机器警犬在开发阶段就屡屡爆出惊人成就，例如采用人工智能程序和计算机识别系统的机械臂可以轻而易举地解锁开门。'
     ,'波士顿动力公司表示，“斑点”专用于非暴力的公共安全执勤。']
-gs = []
-pred = []
+
+
 allsent = []
 for each in train:
-    # sent1, sent2, label = each.split('\t')
-    if len(train[0]) == 3:
-        sent1, sent2, label = each
-    else:
-        sent1, sent2, label, _ = each
-    gs.append(float(label))
+    sent1 = list(jieba.cut(each, cut_all=False))
+    print(sent1)
     s1 = []
-    s2 = []
-    # sw1 = sent1.split()
-    # sw2 = sent2.split()
     for word in sent1:
+        print(word)
         try:
             vec = model[word]
         except KeyError:
-            vec = np.zeros(embedding_size)
+            vec = np.zeros(100)
         s1.append(Word(word, vec))
-    for word in sent2:
-        try:
-            vec = model[word]
-        except KeyError:
-            vec = np.zeros(embedding_size)
-        s2.append(Word(word, vec))
 
     ss1 = Sentence(s1)
-    ss2 = Sentence(s2)
     allsent.append(ss1)
-    allsent.append(ss2)
 
-sentence_vectors = sentence_to_vec(model_v, allsent, 100, looktable=mydict)
+sentence_vectors = sentence_to_vec(model_v, allsent, 100, 1e-3)
 # sentence_to_vec(model_v, sentence_list, 100, 1e-3)
-
 sentence_list = model_v
 embedding_size = 100
 a = 1e-3
