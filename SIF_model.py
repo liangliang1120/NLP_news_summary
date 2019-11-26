@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Nov 24 18:54:19 2019
-
 @author: us
 """
 import numpy as np
@@ -27,8 +26,8 @@ def get_word_frequency(word_text, file_path):
     f= open(file_path,'r',encoding="utf-8")
     word_all = f.read().split()
     if word_text in model_v:
-        freq = word_all.count(word_text) 
-        f.close()  
+        freq = word_all.count(word_text)
+        f.close()
         print(freq)
     else:
         return 1.0
@@ -37,19 +36,19 @@ def get_word_frequency(word_text, file_path):
 def sentence_to_vec(model_v, sentence_list, embedding_size: int, a: float=1e-3):
     sentence_set = []
     for sentence in sentence_list:
-        vs = np.zeros(embedding_size)  
+        vs = np.zeros(embedding_size)
         # add all word2vec values into one vector for the sentence
         sentence_length = sentence.len()
         # 这个就是初步的句子向量的计算方法
 #################################################
         for word in sentence.word_list:
-            a_value = a / (a + get_word_frequency(word.text, 'wiki_cut/wiki_001.txt'))  
+            a_value = a / (a + get_word_frequency(word.text, 'wiki_cut/wiki_001.txt'))
             # smooth inverse frequency, SIF
-            vs = np.add(vs, np.multiply(a_value, word.vector))  
+            vs = np.add(vs, np.multiply(a_value, word.vector))
             # vs += sif * word_vector
 
         vs = np.divide(vs, sentence_length)  # weighted average
-        sentence_set.append(vs)  
+        sentence_set.append(vs)
         # add to our existing re-calculated set of sentences
 #################################################
     # calculate PCA of this sentence set,计算主成分
@@ -94,15 +93,50 @@ for word1 in model.wv.index2word:
     model_v[word1] = model[word1]
 
 
-sentence = '可爱的我喜欢学习新的事物'
-sentence_list = list(jieba.cut(sentence, cut_all=False))
-sentence_to_vec(model_v, sentence_list, 100, 1e-3)
+# sentence = '可爱的小美喜欢学习新的事物'
+# sentence_list = list(jieba.cut(sentence, cut_all=False))
+train = ['世界首批智能机器警犬惊现美国马萨诸塞州街头执勤，吓坏民权组织'
+    ,'据美国媒体11月25日报道，马萨诸塞州警方从今年8月开始，不动声色地使用世界上首批智能机器警犬在街头执勤，这些机器警犬装备了人工智能程序，可以探查可疑包裹，追踪犯罪嫌疑人藏身地点，还可以轻易地解锁开门。'
+    ,'WBUR首先报道了马萨诸塞州警方使用机器警犬执勤，称警方将其作为“移动遥控监测装置”使用。'
+    ,'警方的录像资料表明，机器警犬“斑点”采用人工智能程序和计算机识别系统的机械臂可以轻而易举地解锁开门。'
+    ,'据悉，“斑点”装备了一只机械臂和一个弱光环境摄像头，可以自动行走，也可以遥控操作。'
+    ,'这款机器警犬在开发阶段就屡屡爆出惊人成就，例如采用人工智能程序和计算机识别系统的机械臂可以轻而易举地解锁开门。'
+    ,'波士顿动力公司表示，“斑点”专用于非暴力的公共安全执勤。']
+gs = []
+pred = []
+allsent = []
+for each in train:
+    # sent1, sent2, label = each.split('\t')
+    if len(train[0]) == 3:
+        sent1, sent2, label = each
+    else:
+        sent1, sent2, label, _ = each
+    gs.append(float(label))
+    s1 = []
+    s2 = []
+    # sw1 = sent1.split()
+    # sw2 = sent2.split()
+    for word in sent1:
+        try:
+            vec = model[word]
+        except KeyError:
+            vec = np.zeros(embedding_size)
+        s1.append(Word(word, vec))
+    for word in sent2:
+        try:
+            vec = model[word]
+        except KeyError:
+            vec = np.zeros(embedding_size)
+        s2.append(Word(word, vec))
+
+    ss1 = Sentence(s1)
+    ss2 = Sentence(s2)
+    allsent.append(ss1)
+    allsent.append(ss2)
+
+sentence_vectors = sentence_to_vec(model_v, allsent, 100, looktable=mydict)
+# sentence_to_vec(model_v, sentence_list, 100, 1e-3)
 
 sentence_list = model_v
 embedding_size = 100
 a = 1e-3
-
-
-
-
-
