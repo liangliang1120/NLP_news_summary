@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Nov 24 18:54:19 2019
+#切分句子，只按照句号
+#后需要把词频记录下来直接查，word2vec也要记录，不能每次调用再去算，存到数据库再取会不会快一点
+
+
 @author: us
 """
 import numpy as np
@@ -25,30 +29,33 @@ def get_word_frequency(word_text, file_path):
     # 统计词频
     f= open(file_path,'r',encoding="utf-8")
     word_all = f.read().split()
-    if word_text in model_v:
-        freq = word_all.count(word_text)
-        f.close()
-        print(freq)
+    if word_text in word_all:
+        freq = word_all.count(word_text) 
+        f.close()  
+        #print(freq)
+        return freq
     else:
         return 1.0
 
 # sentence_to_vec方法就是将句子转换成对应向量的核心方法
-def sentence_to_vec(model_v, sentence_list, embedding_size: int, a: float=1e-3):
+def sentence_to_vec(model_v, allsent, embedding_size: int, a: float=1e-3):
     sentence_set = []
-    for sentence in sentence_list:
-        vs = np.zeros(embedding_size)
+    for sentence in allsent:
+        vs = np.zeros(embedding_size)  
         # add all word2vec values into one vector for the sentence
         sentence_length = sentence.len()
+        print(sentence.len())
         # 这个就是初步的句子向量的计算方法
 #################################################
         for word in sentence.word_list:
-            a_value = a / (a + get_word_frequency(word.text, 'wiki_cut/wiki_001.txt'))
+            print(word.text)
+            a_value = a / (a + get_word_frequency(word.text, 'wiki_cut/wiki_001.txt'))  
             # smooth inverse frequency, SIF
-            vs = np.add(vs, np.multiply(a_value, word.vector))
+            vs = np.add(vs, np.multiply(a_value, word.vector))  
             # vs += sif * word_vector
 
         vs = np.divide(vs, sentence_length)  # weighted average
-        sentence_set.append(vs)
+        sentence_set.append(vs)  
         # add to our existing re-calculated set of sentences
 #################################################
     # calculate PCA of this sentence set,计算主成分
@@ -87,7 +94,7 @@ def my_word2vec(cut_filename):
     model.save('./model/zh_wiki_global.model')
     return model
 
-model = my_word2vec('wiki_cut.txt')
+model = my_word2vec('wiki_001.txt')
 model_v = {}
 for word1 in model.wv.index2word:
     model_v[word1] = model[word1]
@@ -125,3 +132,6 @@ sentence_vectors = sentence_to_vec(model_v, allsent, 100, 1e-3)
 sentence_list = model_v
 embedding_size = 100
 a = 1e-3
+
+
+
